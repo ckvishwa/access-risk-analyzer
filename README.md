@@ -137,7 +137,7 @@ python -m pytest -q
 9 sanity tests — they don't try to prove the security findings are
 *realistic* (that's a judgment call, see below), they check that the
 pipeline's internal logic is consistent: every reported path is actually
-walkable in the graph, remediation never *increases* risk, the report's
+walkable in the graph, remediation never "increases" the number of admin-reachable identities in the tested scenario, the report's
 row count matches the user count, the dataset is deterministic given a
 seed, and so on.
 
