@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "access-risk-analyzer"
+version = "0.1.0"
+description = "Graph-based IAM access risk analyzer with least-privilege remediation impact."
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3.0",
+    "matplotlib>=3.7",
+    "faker>=20.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+include = ["access_risk_analyzer*"]

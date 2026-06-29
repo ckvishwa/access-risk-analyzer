@@ -130,15 +130,21 @@ def remediation_impact(dataset: IAMDataset, recs: Dict[str, IdentityRecommendati
     baseline_admin_count = ap_module.count_users_with_path_to_admin(baseline_graph)
     remediated_admin_count = ap_module.count_users_with_path_to_admin(remediated_graph)
 
+    # Note on the "remaining" average: this is intentionally NOT the same
+    # shape as the admin-reachable count. Trimming permissions removes the
+    # *cheapest/easiest* escalation paths first (that's what "low weight"
+    # means), so the average severity of whatever paths survive can tick
+    # up even as the total count drops -- the remediation worked, what's
+    # left is just the harder, costlier-to-fix subset.
     return {
         "users_with_path_to_admin_before": baseline_admin_count,
         "users_with_path_to_admin_after": remediated_admin_count,
         "paths_found_before": len(baseline_paths),
         "paths_found_after": len(remediated_paths),
-        "avg_risk_score_before": round(
+        "avg_remaining_admin_path_risk_before": round(
             sum(p.risk_score for p in baseline_paths) / len(baseline_paths), 1
         ) if baseline_paths else 0.0,
-        "avg_risk_score_after": round(
+        "avg_remaining_admin_path_risk_after": round(
             sum(p.risk_score for p in remediated_paths) / len(remediated_paths), 1
         ) if remediated_paths else 0.0,
     }
