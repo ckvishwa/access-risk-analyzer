@@ -18,8 +18,8 @@ graph instead of bolted on as a separate report.
 
 ### The finding that motivated this project
 
-> A developer with `iam:PassRole` + `ec2:RunInstances` — neither dangerous
-> alone — can launch an EC2 instance with an admin role attached and
+> A developer with `iam:PassRole` + `ec2:RunInstances` — neither fully explains the impact in isolation
+>  — can launch an EC2 instance with an admin role attached and
 > harvest its credentials. No single permission they hold looks like a
 > problem. The *chain* is the problem. That's a graph traversal, not a
 > policy lint.
