@@ -103,13 +103,13 @@ flowchart LR
 
     classDef inp fill:#64748B,stroke:#0F172A,color:#fff
     classDef val fill:#7C3AED,stroke:#0F172A,color:#fff
-    classDef graph fill:#2563EB,stroke:#0F172A,color:#fff
+    classDef graphlayer fill:#2563EB,stroke:#0F172A,color:#fff
     classDef ana fill:#06B6D4,stroke:#0F172A,color:#fff
     classDef out fill:#10B981,stroke:#0F172A,color:#fff
     classDef err fill:#0F172A,stroke:#0F172A,color:#fff
     class DS,PR,LP inp
     class VAL,OV val
-    class EFF,G,G2 graph
+    class EFF,G,G2 graphlayer
     class RISK,RISK2 ana
     class REP out
     class ERR err
