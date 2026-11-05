@@ -2,10 +2,11 @@
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Tests](https://img.shields.io/badge/tests-9%20passing-brightgreen)
+[![CI](https://github.com/ckvishwa/access-risk-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/ckvishwa/access-risk-analyzer/actions/workflows/ci.yml)
 ![Stack](https://img.shields.io/badge/stack-networkx%20%7C%20matplotlib%20%7C%20faker-orange)
 ![Status](https://img.shields.io/badge/status-active-success)
 
-**Models a cloud IAM environment as a graph, finds privilege-escalation
+**Models a synthetic cloud IAM environment as a graph, finds privilege-escalation
 attack paths through it, and proves which permissions are safe to remove
 by re-running the graph without them.**
 
