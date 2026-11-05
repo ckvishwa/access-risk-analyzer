@@ -20,6 +20,12 @@ class PolicyStatement:
     actions: List[str]
     resources: List[str] = field(default_factory=lambda: ["*"])
 
+    def __post_init__(self) -> None:
+        # IAM effects are case-sensitive. Anything else used to be silently
+        # treated as "not Allow", dropping the grant from every risk result.
+        if self.effect not in ("Allow", "Deny"):
+            raise ValueError(f"statement effect must be 'Allow' or 'Deny', got {self.effect!r}")
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 

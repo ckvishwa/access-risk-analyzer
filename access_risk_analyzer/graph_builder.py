@@ -24,7 +24,7 @@ from __future__ import annotations
 from typing import Dict, Optional, Set, List, Tuple
 import networkx as nx
 
-from .models import IAMDataset, IAMUser, IAMRole
+from .models import IAMDataset, IAMGroup, IAMUser, IAMRole
 from .privesc_rules import PRIVESC_RULES, actions_satisfy_rule
 
 ROOT_ADMIN = "ROOT_ADMIN"
@@ -38,6 +38,21 @@ RESOURCE_SERVICE_MAP = {
 }
 
 
+def _policy_actions(dataset: IAMDataset, policy_id: str, owner: str) -> List[str]:
+    policy = dataset.policies.get(policy_id)
+    if policy is None:
+        raise ValueError(f"{owner} references unknown policy {policy_id!r}")
+    return policy.actions()
+
+
+def _group_by_name(dataset: IAMDataset, group_name: str, owner: str) -> IAMGroup:
+    """Resolve a membership; a dangling one is an input error, not 'no access'."""
+    group = next((g for g in dataset.groups if g.name == group_name), None)
+    if group is None:
+        raise ValueError(f"{owner} is a member of unknown group {group_name!r}")
+    return group
+
+
 def effective_actions(identity_id: str, dataset: IAMDataset,
                        overrides: Optional[Dict[str, Set[str]]] = None) -> Set[str]:
     """Union of all actions an identity (user or role) effectively holds."""
@@ -49,19 +64,19 @@ def effective_actions(identity_id: str, dataset: IAMDataset,
     role = next((r for r in dataset.roles if r.id == identity_id), None)
 
     if user:
+        owner = f"user {user.id!r}"
         for pid in user.attached_policies:
-            actions.update(dataset.policies[pid].actions())
+            actions.update(_policy_actions(dataset, pid, owner))
         for stmt in user.inline_statements:
             if stmt.effect == "Allow":
                 actions.update(stmt.actions)
         for gname in user.groups:
-            group = next((g for g in dataset.groups if g.name == gname), None)
-            if group:
-                for pid in group.attached_policies:
-                    actions.update(dataset.policies[pid].actions())
+            group = _group_by_name(dataset, gname, owner)
+            for pid in group.attached_policies:
+                actions.update(_policy_actions(dataset, pid, f"group {group.id!r}"))
     elif role:
         for pid in role.attached_policies:
-            actions.update(dataset.policies[pid].actions())
+            actions.update(_policy_actions(dataset, pid, f"role {role.id!r}"))
 
     return actions
 
@@ -93,9 +108,8 @@ def build_graph(dataset: IAMDataset,
     # cosmetic membership edges
     for u in dataset.users:
         for gname in u.groups:
-            grp = next((x for x in dataset.groups if x.name == gname), None)
-            if grp:
-                g.add_edge(f"user:{u.id}", f"group:{grp.id}", kind="member_of", weight=0.01)
+            grp = _group_by_name(dataset, gname, f"user {u.id!r}")
+            g.add_edge(f"user:{u.id}", f"group:{grp.id}", kind="member_of", weight=0.01)
 
     actions_cache: Dict[str, Set[str]] = {
         aid: effective_actions(aid, dataset, overrides) for aid, _ in actors
